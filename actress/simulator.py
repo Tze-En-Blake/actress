@@ -516,6 +516,8 @@ class Simulator():
                 LSP = self.__spotmask[idx_spot]
                 LFA = self.__facmask[idx_facu]
 
+                ### add my masks here
+
                 star[idx_star] = star[idx_star]*LST/self.__dphot
                 star[idx_spot] = star[idx_spot]*LSP/self.__dspot
                 star[idx_facu] = star[idx_facu]*LFA/self.__dfac
@@ -690,9 +692,9 @@ class Simulator():
             anim.save(save)
 
         # if outputLC:
-        #     os.makedirs('./rot_lightcurve_csvs', exist_ok=True)
+        #     os.makedirs('./outputs/rot_lightcurve_csvs', exist_ok=True)
         #     wavelength_text = f"{wavelength * 1e10:.3f}"  # meters → Ångstroms
-        #     np.savetxt(f"./rot_lightcurve_csvs/lightcurve_{wavelength_text}.csv", dat[0], delimiter=",", header="flux", comments="")
+        #     np.savetxt(f"./outputs/rot_lightcurve_csvs/lightcurve_{wavelength_text}.csv", dat[0], delimiter=",", header="flux", comments="")
         #     return dat[0]
 
         else:
