@@ -61,64 +61,59 @@ class Transitsim(object):
         sim.setxsize(self.res)
 
         # Plot HealPix map
-        import healpy as hp
-        inc=np.pi/6
-        m = sim.makemap(mode=self.mode)
-        hp.mollview(m, title=f'HealPix Map ({self.mode})', cmap='viridis')
-       # plt.show()
+       #  import healpy as hp
+       #  m = sim.makemap(mode=self.mode)
+       #  hp.mollview(m, title=f'HealPix Map ({self.mode})', cmap='viridis')
+       # # plt.show()
         
-        # Calculate surface normal projection (mu) and line-of-sight velocity
-        nside = hp.npix2nside(len(m))
-        theta, phi = hp.pix2ang(nside, np.arange(len(m)))
+       #  # Calculate surface normal projection (mu) and line-of-sight velocity
+       #  nside = hp.npix2nside(len(m))
+       #  theta, phi = hp.pix2ang(nside, np.arange(len(m)))
         
         
-        # Surface normal projection (mu)
-        mu =  np.sqrt(1-(phi/np.pi))#np.sin(theta) * np.cos(phi)
-        mu[mu <= 0] = np.nan
-        # hp.mollview(mu, title='Surface Normal Projection (μ) - Front Side Only', cmap='plasma')
-        # plt.show()
-        mu = np.sin(theta) * np.cos(phi)
+       #  # Surface normal projection (mu)
+       #  mu =  np.sqrt(1-(phi/np.pi))#np.sin(theta) * np.cos(phi)
+       #  mu[mu <= 0] = np.nan
+       #  hp.mollview(mu, title='Surface Normal Projection (μ) - Front Side Only', cmap='plasma')
+       #  plt.show()
+       #  mu = np.sin(theta) * np.cos(phi)
 
-        # Mask the back half (where mu <= 0)
-        theta_masked = np.where(mu > 0, theta / np.pi, np.nan)
-        hp.mollview(theta_masked, title='π radians, Theta (Front Side Only)', cmap='RdBu')
-        plt.show()
-        phi_masked = np.where(mu > 0, phi / np.pi, np.nan)
-        hp.mollview(phi_masked, title='π radians, phi (Front Side Only)', cmap='RdBu')
-        plt.show()
+       #  # Mask the back half (where mu <= 0)
+       #  theta_masked = np.where(mu > 0, theta / np.pi, np.nan)
+       #  hp.mollview(theta_masked, title='π radians, Theta (Front Side Only)', cmap='RdBu')
+       #  plt.show()
+       #  phi_masked = np.where(mu > 0, phi / np.pi, np.nan)
+       #  hp.mollview(phi_masked, title='π radians, phi (Front Side Only)', cmap='RdBu')
+       #  plt.show()
      
-        # # Mask the back sides (where mu <= 0)
-        # lon_mask = np.sin(phi)
-        # lon_masked = np.where(mu > 0, lon_mask, np.nan)
-        # hp.mollview(lon_masked, title='sin(phi), Front Side Only', cmap='RdBu')
-        # plt.show()
+       #  # Mask the back sides (where mu <= 0)
+       #  lon_mask = np.sin(phi)
+       #  lon_masked = np.where(mu > 0, lon_mask, np.nan)
+       #  hp.mollview(lon_masked, title='sin(phi), Front Side Only', cmap='RdBu')
+       #  plt.show()
 
-        lat_mask = np.sin(theta)
-        lat_masked = np.where(mu > 0, lat_mask, np.nan)
-        hp.mollview(lat_masked, title='sin(theta), Front Side Only', cmap='RdBu')
-        plt.show()
+       #  lat_mask = np.sin(theta)
+       #  lat_masked = np.where(mu > 0, lat_mask, np.nan)
+       #  hp.mollview(lat_masked, title='sin(theta), Front Side Only', cmap='RdBu')
+       #  plt.show()
 
-        # lon_mask = np.sin(phi)
-        # lon_masked = np.where(mu > 0, lon_mask, np.nan)
-        # hp.mollview(lon_masked, title='sin(phi), Front Side Only', cmap='RdBu')
-        # plt.show()
+       #  lon_mask = np.sin(phi)
+       #  lon_masked = np.where(mu > 0, lon_mask, np.nan)
+       #  hp.mollview(lon_masked, title='sin(phi), Front Side Only', cmap='RdBu')
+       #  plt.show()
 
-        #line-of-sight velocity for vertical axis rotation
-        front_mask = np.sin(theta) * np.cos(phi) > 0
+       #  #line-of-sight velocity for vertical axis rotation
+       #  v_eq = 10  # Equatorial velocity in m/s
+       #  v_los = v_eq * np.sin(theta) * np.sin(phi)
+       #  front_mask = np.sin(theta) * np.cos(phi) > 0
+       #  v_los[~front_mask] = np.nan
 
-        v_eq = 10  # Equatorial velocity in m/s
-        v_star = np.sin(theta) * v_eq
-        v_los = v_star * np.sin(phi)
-        v_los[~front_mask] = np.nan
+       #  wavelength_shift = v_los / 3e8 * wavelength  # doppler shift in meters
 
-        wavelength_shift = v_los / 3e8 * wavelength  # doppler shift in meters
-
-        hp.mollview(v_star, title=f'V_star (max {v_eq} m/s)', cmap='RdBu')
-
-        hp.mollview(v_los, title=f'Line-of-Sight Velocity (max {v_eq} m/s)', cmap='RdBu')
-        plt.show()
-        hp.mollview(wavelength_shift*1e10, title='Wavelength Shift (Angstroms)', cmap='RdBu')
-        plt.show()
+       #  hp.mollview(v_los, title=f'Line-of-Sight Velocity (max {v_eq} m/s)', cmap='RdBu')
+       #  plt.show()
+       #  hp.mollview(wavelength_shift*1e10, title='Wavelength Shift (Angstroms)', cmap='RdBu')
+       #  plt.show()
         #sim.setresolution(15)
 
             #define limb-darkening parameters (lists in a dictionary):
@@ -173,7 +168,7 @@ class Transitsim(object):
                 lightcurve_save_directory = f'./outputs/lightcurves/{lightcurve_save}/'
                 os.makedirs(lightcurve_save_directory, exist_ok=True)
                 lightcurve_save = f'{lightcurve_save_directory}lc_{(wavelength_text)}.csv'
-                lcr = sim.rotate_lc(inc=inc,N=N, mode='faconly', wavelength=wavelength_text) #calculate single-period rotational lightcurve
+                lcr = sim.rotate_lc(inc=90,N=N, mode='faconly', wavelength=wavelength_text) #calculate single-period rotational lightcurve
                 np.savetxt(lightcurve_save, lcr)
 
             # lct = sim.transit_lc(radratio=self.rp, inc=90, b=self.b, N=self.N, mode=self.mode, a=self.a, T=self.T, phi = self.phi, save_transit=None) #calculate transit lightcurve, with planet/star radius ratio rr

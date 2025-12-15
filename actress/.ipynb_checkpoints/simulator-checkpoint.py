@@ -485,8 +485,7 @@ class Simulator():
 
         m = self.makemap(mode=mode)
         v2p = functools.partial(hp.vec2pix, hp.npix2nside(len(m))) 
-        print(f"v2p: {v2p}")
-
+        
 
         x = np.linspace(0, xmax, N+1)[:-1]
         #print(f'v2p: {v2p}, x: {x}')
