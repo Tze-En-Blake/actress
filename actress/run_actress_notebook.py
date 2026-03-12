@@ -62,7 +62,7 @@ class Transitsim(object):
 
         # Plot HealPix map
         import healpy as hp
-        inc=np.pi/6
+        inc=60
         m = sim.makemap(mode=self.mode)
         hp.mollview(m, title=f'HealPix Map ({self.mode})', cmap='viridis')
        # plt.show()
@@ -87,11 +87,11 @@ class Transitsim(object):
         hp.mollview(phi_masked, title='π radians, phi (Front Side Only)', cmap='RdBu')
         plt.show()
      
-        # # Mask the back sides (where mu <= 0)
-        # lon_mask = np.sin(phi)
-        # lon_masked = np.where(mu > 0, lon_mask, np.nan)
-        # hp.mollview(lon_masked, title='sin(phi), Front Side Only', cmap='RdBu')
-        # plt.show()
+        # Mask the back sides (where mu <= 0)
+        lon_mask = np.sin(phi)
+        lon_masked = np.where(mu > 0, lon_mask, np.nan)
+        hp.mollview(lon_masked, title='sin(phi), Front Side Only', cmap='RdBu')
+        plt.show()
 
         lat_mask = np.sin(theta)
         lat_masked = np.where(mu > 0, lat_mask, np.nan)
@@ -108,7 +108,7 @@ class Transitsim(object):
 
         v_eq = 10  # Equatorial velocity in m/s
         v_star = np.sin(theta) * v_eq
-        v_los = v_star * np.sin(phi)
+        v_los = v_star * np.sin(phi) * np.sin(np.radians(inc))
         v_los[~front_mask] = np.nan
 
         wavelength_shift = v_los / 3e8 * wavelength  # doppler shift in meters
@@ -157,7 +157,7 @@ class Transitsim(object):
         """
         with Pool() as pool:
 
-            N = 50
+            N = 20 # number of phase points
 
             print(f'{wavelength * 1e10:.3f} Angstroms')
             wavelength_text = f"{wavelength * 1e10:.3f}"  # meters → Ångstroms
