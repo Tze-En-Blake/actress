@@ -237,6 +237,7 @@ def teff(data,ld_law=None):
         sigma = 5.67e-8
         temp = ((abs(area_final)/sigma))**0.25
         print("The effective temperature is",temp,"K")
+    
 
 
 

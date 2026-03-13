@@ -62,63 +62,7 @@ class Transitsim(object):
 
         # Plot HealPix map
         import healpy as hp
-        inc=60
-        m = sim.makemap(mode=self.mode)
-        hp.mollview(m, title=f'HealPix Map ({self.mode})', cmap='viridis')
-       # plt.show()
-        
-        # Calculate surface normal projection (mu) and line-of-sight velocity
-        nside = hp.npix2nside(len(m))
-        theta, phi = hp.pix2ang(nside, np.arange(len(m)))
-        
-        
-        # Surface normal projection (mu)
-        mu =  np.sqrt(1-(phi/np.pi))#np.sin(theta) * np.cos(phi)
-        mu[mu <= 0] = np.nan
-        # hp.mollview(mu, title='Surface Normal Projection (μ) - Front Side Only', cmap='plasma')
-        # plt.show()
-        mu = np.sin(theta) * np.cos(phi)
-
-        # Mask the back half (where mu <= 0)
-        theta_masked = np.where(mu > 0, theta / np.pi, np.nan)
-        hp.mollview(theta_masked, title='π radians, Theta (Front Side Only)', cmap='RdBu')
-        plt.show()
-        phi_masked = np.where(mu > 0, phi / np.pi, np.nan)
-        hp.mollview(phi_masked, title='π radians, phi (Front Side Only)', cmap='RdBu')
-        plt.show()
-     
-        # Mask the back sides (where mu <= 0)
-        lon_mask = np.sin(phi)
-        lon_masked = np.where(mu > 0, lon_mask, np.nan)
-        hp.mollview(lon_masked, title='sin(phi), Front Side Only', cmap='RdBu')
-        plt.show()
-
-        lat_mask = np.sin(theta)
-        lat_masked = np.where(mu > 0, lat_mask, np.nan)
-        hp.mollview(lat_masked, title='sin(theta), Front Side Only', cmap='RdBu')
-        plt.show()
-
-        # lon_mask = np.sin(phi)
-        # lon_masked = np.where(mu > 0, lon_mask, np.nan)
-        # hp.mollview(lon_masked, title='sin(phi), Front Side Only', cmap='RdBu')
-        # plt.show()
-
-        #line-of-sight velocity for vertical axis rotation
-        front_mask = np.sin(theta) * np.cos(phi) > 0
-
-        v_eq = 10  # Equatorial velocity in m/s
-        v_star = np.sin(theta) * v_eq
-        v_los = v_star * np.sin(phi) * np.sin(np.radians(inc))
-        v_los[~front_mask] = np.nan
-
-        wavelength_shift = v_los / 3e8 * wavelength  # doppler shift in meters
-
-        hp.mollview(v_star, title=f'V_star (max {v_eq} m/s)', cmap='RdBu')
-
-        hp.mollview(v_los, title=f'Line-of-Sight Velocity (max {v_eq} m/s)', cmap='RdBu')
-        plt.show()
-        hp.mollview(wavelength_shift*1e10, title='Wavelength Shift (Angstroms)', cmap='RdBu')
-        plt.show()
+        inc=90
         #sim.setresolution(15)
 
             #define limb-darkening parameters (lists in a dictionary):
@@ -167,7 +111,7 @@ class Transitsim(object):
                 gif_save_directory = f'./outputs/gifs/{gif_save}/'
                 os.makedirs(gif_save_directory, exist_ok=True)
                 gif_save = f'{gif_save_directory}anim_{(wavelength_text)}.gif'
-                rotate_anim = sim.rotate_anim(inc=90, N=N, fluxunits='erg', save=gif_save, norm=False, wavelength=wavelength, outputLC=False) #create animation of rotating star and resulting lightcurve (same as above) #Dana edit making N=different from 10
+                rotate_anim = sim.rotate_anim(inc=inc, N=N, fluxunits='erg', save=gif_save, norm=False, wavelength=wavelength, outputLC=False) #create animation of rotating star and resulting lightcurve (same as above) #Dana edit making N=different from 10
 
             if lightcurve_save:
                 lightcurve_save_directory = f'./outputs/lightcurves/{lightcurve_save}/'
