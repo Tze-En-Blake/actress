@@ -1,0 +1,61 @@
+#!/bin/bash
+#PBS -l select=1:ncpus=8:mem=64gb
+#PBS -l walltime=16:00:00
+#PBS -N Actress_res_check
+#PBS -k oe
+#PBS -o /rds/general/user/bc1721/home/Kstar_T/
+#PBS -e /rds/general/user/bc1721/home/Kstar_T/
+#######PBS -S /bin/bash
+
+#####export OMP_NUM_THREADS=4
+#####export OPENBLAS_NUM_THREADS=4
+#####export MKL_NUM_THREADS=4
+#####export NUMEXPR_NUM_THREADS=4
+#####export TF_NUM_INTEROP_THREADS=2
+#####export TF_NUM_INTRAOP_THREADS=2
+
+
+######Enter this job working directory#####
+cd $PBS_O_WORKDIR
+echo show what PBS_o_WORKDIR is
+echo PBS_o_WORKDIR IS `pwd`
+echo -----
+echo The contents of PBS_o_WORKDIR
+ls -ltr
+
+
+
+####Run job with parameters####
+####if [ -n "$PBS_NODEFILE" ]; then
+####  if [ -f $PBS_NDEFILE ]; then
+####    NPROCS=`wc -l < $PBS_NODEFILE`
+####  fi
+####fi
+####allowing overwrite
+set +o noclobber
+echo "allowing overwrite done"
+dir=/rds/general/user/bc1721/home/actress
+tmp=$TMPDIR
+echo "temporary directory established"
+cd $tmp
+echo "show what inside tmp"
+ls -lt
+rsync -aulpgtv $dir/ $TMPDIR
+echo "sync dir->tmp complete"
+
+cd $tmp/actress
+#####Load modules###
+module load Python
+module list
+
+
+echo "show what inside tmp"
+ls -lt
+
+source /rds/general/user/bc1721/home/actress/actress/actress_env/bin/activate
+
+echo "start runfile"
+python run_batch.py $CHUNK_ID $N_CHUNKS
+
+echo "start sync back"
+rsync -aultpgv --update $tmp/actress/outputs/ $dir/actress/outputs/

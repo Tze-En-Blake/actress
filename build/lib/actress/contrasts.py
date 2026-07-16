@@ -1,6 +1,6 @@
 import numpy as np
 import matplotlib.pyplot as plt
-from scipy.integrate import simps
+from scipy.integrate import simpson as simps
 from scipy.optimize import curve_fit
 from scipy.optimize import minimize
 
@@ -114,7 +114,7 @@ def contrast(data, wav_lower, wav_higher, N, ld_law, save=None, graphs=False):
     indx_low, indx_high = wav_limits(wavelength_m,wav_lower,wav_higher)
     intensity = intensity_si(file)
     n = (indx_high - indx_low)/N
-    
+    print('Im hereeeeeeeeee',indx_high,indx_low)
     wavs = []
     I0s = []
     a_bests = []
@@ -124,11 +124,11 @@ def contrast(data, wav_lower, wav_higher, N, ld_law, save=None, graphs=False):
     wavelength_m=list(wavelength_m)
     for i in range(indx_low,indx_high+1):
         if i%round(n) == 0:
-            delta_freq = ((-(3e8/(wavelength_m[i+1]))+(3e8/(wavelength_m[i])))/2) + ((-(3e8/(wavelength_m[i]))+(3e8/(wavelength_m[i-1])))/2)
+            #delta_freq = ((-(3e8/(wavelength_m[i+1]))+(3e8/(wavelength_m[i])))/2) + ((-(3e8/(wavelength_m[i]))+(3e8/(wavelength_m[i-1])))/2)
     
             I = []
             for j in range(0,9):
-                new = intensity[j][i] * delta_freq
+                new = intensity[j][i] #* delta_freq
                 I.append(new)
             I = np.asarray(I)
     
@@ -237,6 +237,7 @@ def teff(data,ld_law=None):
         sigma = 5.67e-8
         temp = ((abs(area_final)/sigma))**0.25
         print("The effective temperature is",temp,"K")
+    
 
 
 

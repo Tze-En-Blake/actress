@@ -121,7 +121,12 @@ class Simulator():
 
         if (resolution < 1) or (resolution > 30):
             raise Exception("resolution must be an integer between 1 and 30 ({} provided)".format(resolution))
-        self.__res = 2**int(4) #Dana edit resolution
+
+        if hasattr(params, "healpix_res"):
+            self.__res = params.healpix_res
+        else:
+            self.__res = 2**int(10)
+        
 
 
         self.__ld = ld
@@ -389,6 +394,8 @@ class Simulator():
 
         RES = hp.nside2npix(self.__res)
 
+
+
         m = np.linspace(self.__dphot, self.__dphot, RES)
 
         if mode=='both' or mode=='faconly':
@@ -485,7 +492,8 @@ class Simulator():
 
         m = self.makemap(mode=mode)
         v2p = functools.partial(hp.vec2pix, hp.npix2nside(len(m))) 
-        
+        print(f"v2p: {v2p}")
+
 
         x = np.linspace(0, xmax, N+1)[:-1]
         #print(f'v2p: {v2p}, x: {x}')
@@ -505,18 +513,29 @@ class Simulator():
             #flux = np.zeros(N)
             def multithread(xpos): #local multithreading joblib function
                 star = hp.projector.OrthographicProj(rot=[xpos, j], half_sky=True, xsize=self.__xs).projmap(m, v2p)
+                #print(f"star: {star}")
+
+                # this produces x,y coordinates of the disk as viewed by the observer -Dana note
+
 
                 star[star == -np.inf] = 0
+                #print(f"star: {star}", type(star))
+                df = pd.DataFrame(star)
+                df.to_csv('star_test.csv')
 
-                idx_star = star == self.__dphot
+                #add the velocity map 
+                #get wavelength shift map
+
+                idx_star = star == self.__dphot 
                 idx_spot = star == self.__dspot
                 idx_facu = star== self.__dfac
 
-                LST = self.__photmask[idx_star]
+                LST = self.__photmask[idx_star] # these will depend on wavelength shift
                 LSP = self.__spotmask[idx_spot]
                 LFA = self.__facmask[idx_facu]
 
-                ### add my masks here
+
+
 
                 star[idx_star] = star[idx_star]*LST/self.__dphot
                 star[idx_spot] = star[idx_spot]*LSP/self.__dspot
@@ -543,6 +562,7 @@ class Simulator():
 
             if returndisc==False:
                 flux = np.array(flux)
+
             Fluxes.append(flux)
 
 

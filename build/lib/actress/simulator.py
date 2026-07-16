@@ -119,9 +119,11 @@ class Simulator():
 
 
 
-        if (resolution < 1) or (resolution > 30):
-            raise Exception("resolution must be an integer between 1 and 30 ({} provided)".format(resolution))
-        self.__res = 2**int(4) #Dana edit resolution
+        if (resolution < 1):
+            raise Exception("resolution must be positive")
+
+        self.__res = int(resolution)
+        
 
 
         self.__ld = ld
@@ -389,6 +391,8 @@ class Simulator():
 
         RES = hp.nside2npix(self.__res)
 
+
+
         m = np.linspace(self.__dphot, self.__dphot, RES)
 
         if mode=='both' or mode=='faconly':
@@ -470,7 +474,7 @@ class Simulator():
         return star
 
     def rotate_lc(self, inc=90, N=90, xmax=360, ret1inlist=False, mode='both',
-                   synmatch=False, returndisc=False, njobs=8):
+                   synmatch=False, returndisc=False, njobs=8, save_coords=True, wavelength = None):
         """
         Calculates rotational lightcurve of model star, uses multithreading
         Supports several inclinations as input
@@ -484,26 +488,51 @@ class Simulator():
             inc = [inc]
 
         m = self.makemap(mode=mode)
-        v2p = functools.partial(hp.vec2pix, hp.npix2nside(len(m))) #check comparison with James/Luke
+        v2p = functools.partial(hp.vec2pix, hp.npix2nside(len(m))) 
+        print(f"v2p: {v2p}")
 
 
         x = np.linspace(0, xmax, N+1)[:-1]
+        #print(f'v2p: {v2p}, x: {x}')
+        
+        # Save the map if requested
+        # if save_coords and wavelength is not None:
+        #     os.makedirs('./outputs/healpix', exist_ok=True)
+        #     np.save(f'./outputs/healpix/healpix_map_{wavelength}.npy', m)
+            #print(f"HealPix map saved to 'healpix_map.npy'")
+            #print(f"Map shape: {m.shape}, nside: {hp.npix2nside(len(m))}")
+        
+        
+            #####
         Fluxes = []
         for j in inc:
             j -= 90
             #flux = np.zeros(N)
             def multithread(xpos): #local multithreading joblib function
                 star = hp.projector.OrthographicProj(rot=[xpos, j], half_sky=True, xsize=self.__xs).projmap(m, v2p)
+                #print(f"star: {star}")
+
+                # this produces x,y coordinates of the disk as viewed by the observer -Dana note
+
 
                 star[star == -np.inf] = 0
+                #print(f"star: {star}", type(star))
+                df = pd.DataFrame(star)
+                df.to_csv('star_test.csv')
 
-                idx_star = star == self.__dphot
+                #add the velocity map 
+                #get wavelength shift map
+
+                idx_star = star == self.__dphot 
                 idx_spot = star == self.__dspot
                 idx_facu = star== self.__dfac
 
-                LST = self.__photmask[idx_star]
+                LST = self.__photmask[idx_star] # these will depend on wavelength shift
                 LSP = self.__spotmask[idx_spot]
                 LFA = self.__facmask[idx_facu]
+
+
+
 
                 star[idx_star] = star[idx_star]*LST/self.__dphot
                 star[idx_spot] = star[idx_spot]*LSP/self.__dspot
@@ -512,6 +541,8 @@ class Simulator():
 
                 if returndisc==True:
                     entry = star
+                    #os.makedirs('./outputs/returndisc', exist_ok=True)
+                    #np.save(f'./outputs/returndisc/disc_{wavelength}_phase_{xpos:.2f}.npy', star)
                 elif returndisc==False:
                     entry = np.nanmean(star)
                 else:
@@ -528,6 +559,7 @@ class Simulator():
 
             if returndisc==False:
                 flux = np.array(flux)
+
             Fluxes.append(flux)
 
 
@@ -677,9 +709,9 @@ class Simulator():
             anim.save(save)
 
         # if outputLC:
-        #     os.makedirs('./rot_lightcurve_csvs', exist_ok=True)
+        #     os.makedirs('./outputs/rot_lightcurve_csvs', exist_ok=True)
         #     wavelength_text = f"{wavelength * 1e10:.3f}"  # meters → Ångstroms
-        #     np.savetxt(f"./rot_lightcurve_csvs/lightcurve_{wavelength_text}.csv", dat[0], delimiter=",", header="flux", comments="")
+        #     np.savetxt(f"./outputs/rot_lightcurve_csvs/lightcurve_{wavelength_text}.csv", dat[0], delimiter=",", header="flux", comments="")
         #     return dat[0]
 
         else:

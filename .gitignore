@@ -5,3 +5,8 @@ outputs/**/*.csv
 outputs/**/*.txt
 outputs/*.gif
 outputs/**/*.gif
+
+# Python virtual environments
+actress_env/
+venv/
+.venv/

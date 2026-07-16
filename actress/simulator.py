@@ -119,9 +119,11 @@ class Simulator():
 
 
 
-        if (resolution < 1) or (resolution > 30):
-            raise Exception("resolution must be an integer between 1 and 30 ({} provided)".format(resolution))
-        self.__res = 2**int(4) #Dana edit resolution
+        if (resolution < 1):
+            raise Exception("resolution must be positive")
+
+        self.__res = int(resolution)
+        
 
 
         self.__ld = ld

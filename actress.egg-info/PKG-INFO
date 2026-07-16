@@ -1,4 +1,4 @@
-Metadata-Version: 2.2
+Metadata-Version: 2.1
 Name: actress
 Version: 1.0
 Summary: Open source program for simulating stellar variability due to spots and faculae.
@@ -7,23 +7,6 @@ Author: Luke J. Johnson
 Author-email: l.johnson17@imperial.ac.uk
 License: Imperial College London
 Requires-Python: >=3.7
-Requires-Dist: numpy
-Requires-Dist: scipy
-Requires-Dist: healpy
-Requires-Dist: pandas
-Requires-Dist: spectres
-Requires-Dist: astropy
-Requires-Dist: photutils
-Requires-Dist: joblib
-Requires-Dist: uncertainties
-Dynamic: author
-Dynamic: author-email
-Dynamic: description
-Dynamic: home-page
-Dynamic: license
-Dynamic: requires-dist
-Dynamic: requires-python
-Dynamic: summary
 
 # actress
 Stellar Variability Simulator: Open source implementation - written in Python.
